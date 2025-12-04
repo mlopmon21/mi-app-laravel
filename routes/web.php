@@ -2,17 +2,23 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HolaController;
-use App\Http\Controllers\ArticlesController;   // solo si sigues usando /articles/test
+use App\Http\Controllers\ArticlesController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ProfileController;
 
 
-
-// RUTAS "HOLA"
+//RUTA DEL HOLA
 Route::get('/hola', [HolaController::class, 'index']);
 Route::get('/hola/{nombre}', [HolaController::class, 'show']);
 
-//Ejercicio 3
+
+//RUTA DE INICIO
+Route::get('/', function () {
+    return redirect()->route('articles.index');
+});
+
+
+// Ejercicio 3
 // Route::get('/articles-demo', [HolaController::class, 'articles']);
 
 // Ejercicio 4 - ruta de pruebas Eloquent (JSON)
@@ -35,12 +41,10 @@ Route::get('/articles/{id}', [ArticleController::class, 'show'])
     ->name('articles.show');
 
 // Ejercicio 8 - BORRADO del artículo
-Route::delete('/articles/{id}', [ArticleController::class, 'destroy'])->name('articles.destroy');
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::delete('/articles/{id}', [ArticleController::class, 'destroy'])
+    ->name('articles.destroy');
 
-//Ejercicio 9 - Autenticación con Breeze
+// Ejercicio 9 - AUTENTICACIÓN CON BREEZE
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

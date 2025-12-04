@@ -11,20 +11,20 @@
     <h1>Listado de artículos</h1>
 
     {{-- Mensaje de éxito --}}
-
     @if (session('success'))
         <p style="color: green;"><strong>{{ session('success') }}</strong></p>
     @endif
 
     {{-- Mensaje de error --}}
-    
     @if (session('error'))
         <p style="color: red;"><strong>{{ session('error') }}</strong></p>
     @endif
 
-    <p>
-        <a href="{{ route('articles.create') }}">Nuevo artículo</a>
-    </p>
+    @auth
+        <p>
+            <a href="{{ route('articles.create') }}">Nuevo artículo</a>
+        </p>
+    @endauth
 
     @if ($articles->isEmpty())
         <p>No existen artículos.</p>
@@ -47,14 +47,17 @@
                         </td>
                         <td>{{ $article->date }}</td>
                         <td>
-                            <form action="{{ route('articles.destroy', $article->id) }}"
-                                  method="POST"
-                                  onsubmit="return confirm('¿Seguro que quieres borrar este artículo?');">
-                                @csrf
-                                @method('DELETE')
-
-                                <button type="submit">Eliminar</button>
-                            </form>
+                            @auth
+                                @if ($article->user_id === auth()->id())
+                                    <form action="{{ route('articles.destroy', $article->id) }}"
+                                          method="POST"
+                                          onsubmit="return confirm('¿Seguro que quieres borrar este artículo?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit">Eliminar</button>
+                                    </form>
+                                @endif
+                            @endauth
                         </td>
                     </tr>
                 @endforeach

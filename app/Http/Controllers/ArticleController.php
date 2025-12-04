@@ -6,10 +6,14 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use Illuminate\Http\Request;
 
-
-
 class ArticleController extends Controller
 {
+    public function __construct()
+    {
+        // Solo usuarios autenticados pueden crear, guardar y borrar artículos
+        $this->middleware('auth')->only(['create', 'store', 'destroy']);
+    }
+
     public function index()
     {
         // Recuperar todos los artículos ordenados por fecha descendente
@@ -49,7 +53,8 @@ class ArticleController extends Controller
             'title'   => $validated['title'],
             'body'    => $validated['body'],
             'date'    => $validated['date'],
-            'user_id' => 1,
+            // guardamos el artículo con el usuario autenticado
+            'user_id' => auth()->id(),
         ]);
 
         // Redirigir al listado con mensaje de éxito
@@ -61,25 +66,31 @@ class ArticleController extends Controller
     //Ejercicio 8 - Borrar artículo
     public function destroy($id)
     {
-    $article = Article::find($id);
+        $article = Article::find($id);
 
-    if (!$article) {
-        return redirect()
-            ->route('articles.index')
-            ->with('error', 'Artículo no encontrado.');
-    }
+        if (!$article) {
+            return redirect()
+                ->route('articles.index')
+                ->with('error', 'Artículo no encontrado.');
+        }
 
-    try {
-        $article->delete();
+        // Solo el autor puede borrar su artículo
+        if ($article->user_id !== auth()->id()) {
+            return redirect()
+                ->route('articles.index')
+                ->with('error', 'No tienes permiso para borrar este artículo.');
+        }
 
-        return redirect()
-            ->route('articles.index')
-            ->with('success', 'Artículo borrado correctamente.');
-    } catch (\Exception $e) {
-        return redirect()
-            ->route('articles.index')
-            ->with('error', 'Error al borrar el artículo.');
+        try {
+            $article->delete();
+
+            return redirect()
+                ->route('articles.index')
+                ->with('success', 'Artículo borrado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('articles.index')
+                ->with('error', 'Error al borrar el artículo.');
+        }
     }
-    }
-   
-}   
+}
