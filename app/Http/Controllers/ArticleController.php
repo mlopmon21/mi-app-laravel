@@ -2,7 +2,6 @@
 
 //Ejercicio 5
 namespace App\Http\Controllers;
-
 use App\Models\Article;
 use Illuminate\Http\Request;
 
